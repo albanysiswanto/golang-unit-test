@@ -11,7 +11,7 @@ untuk menjalankan unit test:
 3. ``go test -v -run TestNamaFunction`` menjalankan unit test yang diinginkan
 4. ``go test -v ./...`` untuk merunning semua package yang ada di dalam folder unit test.
 
-## Menggalkan test
+## Mengagalkan test
 Mengagalkan unit test menggunakan ``panic`` bukanlah hal yang bagus. Go-Lang sendiri menediakan cara untuk mengagalkan unit test menggunakan testing.T. Terdapat function ``Fail()``, ``FailNow()``, ``Error()``, dan ``Fatal()``jika ingin mangagalkan unit test.
 
 1. ``Fail()`` akan mengagalkan unit test, namun tetap melanjutkan eksekusi unit test. Namun diakhir ketika selesai, maka unit test tersebut dianggap gagal.
