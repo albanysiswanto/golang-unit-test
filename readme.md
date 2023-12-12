@@ -1,4 +1,8 @@
-# Belajar unit test di golang
+# Unit Test di Go-Lang
+![vscode](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
+![go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![github](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/stretchr/testify)](https://pkg.go.dev/github.com/stretc)
 
 ## Menjalankan unit test
 untuk menjalankan unit test:
@@ -154,8 +158,8 @@ func TestTableTest(t *testing.T) {
 package entity
 
 type Category struct {
-	id   string
-	name string
+	Id   string
+	Name string
 }
 ```
 2. Lalu berikutnya kita akan membuat folder ``Repository`` dan file contohnya ``category_repository`` untuk membuat kontrak berupa interface agar dapat menjalankan mock dengan baik.
