@@ -113,3 +113,147 @@ func TestSubTest(t *testing.T) {
 }
 ```
 - Jika ingin menjalankan Sub test nya saja kalian bisa menggunakan perintah ``go test -v -run TestNameSubTest/SubTest``
+
+## Table test
+Table test yaitu dimana kita menyediakan data berupa slice yang berisi parameter dan ekpetasi hasil dari unit test. Lalu slice bersebut kita iterasi menggunakan **Sub test**.
+```go
+func TestTableTest(t *testing.T) {
+	// Slice
+	tests := []struct {
+		name     string
+		request  string
+		expected string
+	}{
+		{
+			name:     "Albany",
+			request:  "Albany",
+			expected: "Hello Albany",
+		},
+		{
+			name:     "Budi",
+			request:  "Budi",
+			expected: "Hello Budi",
+		},
+	}
+
+	for _, tests := range tests {
+		t.Run(tests.name, func(t *testing.T) {
+			result := HelloWorld(tests.request)
+			require.Equal(t, tests.expected, result)
+		})
+	}
+}
+```
+
+## Testify Mock
+### Contoh kasus:
+**Aplikasi Query ke Databse:** Kita akan coba contoh kasus dengan membuat contoh aplikasi golang yang melakukan query ke database. Dimana kida akan buat layer service sebagai business logic, dan layer Repository sebagai jembatan ke database. Agar kode kita mudah untuk di test, disarankan agar membuat _kontrak_ berupa _Interface_.
+
+1. Pertama kita akan membuat folder ``Entity`` dan file contohnya ``catogory.go`` untuk merepresentasikan sebuah data dari database.
+```go
+package entity
+
+type Category struct {
+	id   string
+	name string
+}
+```
+2. Lalu berikutnya kita akan membuat folder ``Repository`` dan file contohnya ``category_repository`` untuk membuat kontrak berupa interface agar dapat menjalankan mock dengan baik.
+```go
+package repository
+
+import "belajar-golang-unit-test/entity"
+
+type CategoryRepository interface {
+	FindById(id string) *entity.Category
+}
+```
+3. Selanjutnya kita akan membuat Service nya, Idealnya kita membuat interface. Tetapi saat ini kita akan menggunakan Struct agar memudahkan kita. Sekarang kita akan membuat folder ``Service`` dan file ``category_service.go``.
+```go
+package service
+
+import (
+	"belajar-golang-unit-test/entity"
+	"belajar-golang-unit-test/repository"
+	"errors"
+)
+
+type CategoryService struct {
+	Repository repository.CategoryRepository
+}
+
+func (service *CategoryService) Get(id string) (*entity.Category, error) {
+	category := service.Repository.FindById(id)
+	if category == nil {
+		return nil, errors.New("Category not found")
+	} else {
+		return category, nil
+	}
+}
+```
+4. Setelah semua selesai, sekarang kita akan Menggunakan ``Testify Mock``.
+Kode: Category Repository Mock. ``(file name : repository/category_repository_mock.go)``
+```go
+package repository
+
+import (
+	"belajar-golang-unit-test/entity"
+	"github.com/stretchr/testify/mock"
+)
+
+type CategoryRepositoryMock struct {
+	Mock mock.Mock
+}
+
+func (repository *CategoryRepositoryMock) FindById(id string) *entity.Category {
+	arguments := repository.Mock.Called(id)
+	if arguments.Get(0) == nil {
+		return nil
+	} else {
+		category := arguments.Get(0).(entity.Category)
+		return &category
+	}
+}
+
+```
+5. Selanjutnya kita akan melakukan unit test terhadap kode mock yang sudah kita buat tadi. Sekarang kita akan membuat file ``category_service_test.go`` pada folder ``Service``.
+```go
+package service
+
+import (
+	"belajar-golang-unit-test/entity"
+	"belajar-golang-unit-test/repository"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+)
+
+var categoryRepository = &repository.CategoryRepositoryMock{Mock: mock.Mock{}}
+var categoryService = CategoryService{Repository: categoryRepository}
+
+func TestCategorySevice_GetNotFound(t *testing.T) {
+	// program mock
+	categoryRepository.Mock.On("FindById", "1").Return(nil)
+
+	category, err := categoryService.Get("1")
+	assert.Nil(t, category)
+	assert.NotNil(t, err)
+}
+
+func TestCategorySevice_GetSuccess(t *testing.T) {
+	category := entity.Category{
+		Id:   "1",
+		Name: "Laptop",
+	}
+
+	// program mock
+	categoryRepository.Mock.On("FindById", "2").Return(category)
+
+	result, err := categoryService.Get("2")
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, category.Id, result.Id)
+	assert.Equal(t, category.Name, result.Name)
+}
+```
