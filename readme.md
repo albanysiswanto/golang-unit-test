@@ -11,7 +11,7 @@ untuk menjalankan unit test:
 3. ``go test -v -run TestNamaFunction`` menjalankan unit test yang diinginkan
 4. ``go test -v ./...`` untuk merunning semua package yang ada di dalam folder unit test.
 
-## Menggalkan test
+## Mengagalkan test
 Mengagalkan unit test menggunakan ``panic`` bukanlah hal yang bagus. Go-Lang sendiri menediakan cara untuk mengagalkan unit test menggunakan testing.T. Terdapat function ``Fail()``, ``FailNow()``, ``Error()``, dan ``Fatal()``jika ingin mangagalkan unit test.
 
 1. ``Fail()`` akan mengagalkan unit test, namun tetap melanjutkan eksekusi unit test. Namun diakhir ketika selesai, maka unit test tersebut dianggap gagal.
@@ -259,5 +259,63 @@ func TestCategorySevice_GetSuccess(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, category.Id, result.Id)
 	assert.Equal(t, category.Name, result.Name)
+}
+```
+
+## Benchmark
+Benchmark di Go-Lang dilakukan dengan cara otomatis melakukan iterasi kode yang kita panggil berkali-kali sampai waktu tertentu. Kita tidak perlu menentukan jumalah iterasi dan lamanya, karena itu sudah di atur oleh ``testing.B`` bawaan dari testing package.
+
+```go
+func BenchmarkHelloWorld(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		HelloWorld("Albany")
+	}
+}
+```
+Untuk menjalankan Benchmark kita perlu menguunakan command ``go test -v -bench=.`` jika tidak ingin merunning unit test nya maka gunakan command ini ``go test -v -run=TidakAdaUnitTest -bench=.``
+
+## Sub Benchmark
+Sama halnya dengan **Sub Test** melainkan cara penggunakan function nya saja yang berbeda.
+```go
+func BenchmarkSub(b *testing.B) {
+	b.Run("Albany", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HelloWorld("Albany")
+		}
+	})
+	b.Run("Siswanto", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			HelloWorld("Siswanto")
+		}
+	})
+}
+```
+
+## Table Banchmark
+Ini digunakan agar kita bisa mudah melakukan performance test dengan kombinasi data yang berbeda-beda tanpa harus membuat banyak function benchmark.
+```go
+func BenchmarkTable(b *testing.B) {
+	// Slice
+	benchmarks := []struct {
+		name    string
+		request string
+	}{
+		{
+			name:    "Albany",
+			request: "Albany",
+		},
+		{
+			name:    "Siswanto",
+			request: "Siswanto",
+		},
+	}
+
+	for _, benchmark := range benchmarks {
+		b.Run(benchmark.name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				HelloWorld(benchmark.request)
+			}
+		})
+	}
 }
 ```
