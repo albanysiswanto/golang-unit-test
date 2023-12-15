@@ -261,6 +261,7 @@ func TestCategorySevice_GetSuccess(t *testing.T) {
 	assert.Equal(t, category.Name, result.Name)
 }
 ```
+<<<<<<< HEAD
 
 ## Benchmark
 Benchmark di Go-Lang dilakukan dengan cara otomatis melakukan iterasi kode yang kita panggil berkali-kali sampai waktu tertentu. Kita tidak perlu menentukan jumalah iterasi dan lamanya, karena itu sudah di atur oleh ``testing.B`` bawaan dari testing package.
@@ -319,3 +320,5 @@ func BenchmarkTable(b *testing.B) {
 	}
 }
 ```
+=======
+>>>>>>> 06cce7140dd3a5fc8ff79dc3850d8e3b1afea40f
